@@ -1,4 +1,5 @@
 from random import random
+import logging
 
 
 class Tas:
@@ -8,12 +9,18 @@ class Tas:
         self.p_drug_service = 0.5
         self.p_monitor_service = 0.1
         self.p_alarm_service = 0.5
+        self.logger = logging.getLogger(__name__)
+        logging.basicConfig(filename="tas.log", level=logging.INFO, format='%(levelname)s - %(message)s - %(asctime)s')
+
+        self.h = 0.1
 
     def send_alarm(self):
         if random() < self.p_alarm_service:
             print("Standard Alarm is triggered")
+            self.logger.info("standard_alarm - SUCCESS")
         else:
             print("Emergency Alarm is triggered")
+            self.logger.info("emergency_alarm - SUCCESS")
         return True
 
     def provide_health_support(self):
@@ -33,12 +40,15 @@ class Tas:
     def get_vital_params(self):
         if random() < self.p_vital_params:
             print("Received full params")
+            self.logger.info("vital_params_full - SUCCESS")
         else:
             print("Received partial params")
+            self.logger.info("vital_params_partial - SUCCESS")
         return True
 
     def analyse_data(self):
         print("Analysing data")
+        self.logger.info("analyse_data - SUCCESS")
         return True
 
     def enact_treatment(self):
@@ -53,8 +63,10 @@ class Tas:
         print("System entered drug service")
         if random() < self.p_drug_service:
             print("System decided to change drug")
+            self.logger.info("drug_service_change_drug - SUCCESS")
         else:
             print("System decided to change dosage")
+            self.logger.info("drug_service_change_dose - SUCCESS")
 
         return True
 
@@ -62,9 +74,12 @@ class Tas:
         print("System monitoring side effects")
         if random() < self.p_monitor_service:
             print("System failed to reach monitor service")
+            self.logger.info("monitor_service - FAILURE")
+            self.logger.info("monitor_service_retry - FAILURE")
             return False
 
         print("System monitored side effects")
+        self.logger.info("monitor_service - SUCCESS")
         if random() < 0.3:
             print("Detected negative side effects")
             return False
