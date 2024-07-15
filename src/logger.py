@@ -65,12 +65,10 @@ class RuntimeLogger:
             except TypeError:
                 p = f"p{code}"
 
-            probabilities_list.append(p)
-
             for index, line in enumerate(pm_file[1:20]):
-                for p in probabilities_list:
-                    if p in line:
-                        pm_file[index+1] = f"const double {p} = {self.adaptability[goal]:.3f};\n"
+                if p in line:
+                    pm_file[index+1] = f"const double {p} = {self.adaptability[goal]:.3f};\n"
+                    break
 
         with open(prism_model_path, "w") as wf:
             wf.writelines(pm_file)
