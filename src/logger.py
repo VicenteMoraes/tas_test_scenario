@@ -56,7 +56,6 @@ class RuntimeLogger:
         with open(prism_model_path, "r") as rf:
             pm_file = rf.readlines()
 
-        probabilities_list = []
         for goal in self.goals:
             code = ''.join([s for s in goal if s.isdigit()])
             try:
