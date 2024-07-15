@@ -12,14 +12,13 @@ class Tas:
         self.logger = logging.getLogger(__name__)
         logging.basicConfig(filename="tas.log", level=logging.INFO, format='%(levelname)s - %(message)s - %(asctime)s')
 
-        self.h = 0.1
-
     def send_alarm(self):
         if random() < self.p_alarm_service:
             print("Standard Alarm is triggered")
             self.logger.info("standard_alarm - SUCCESS")
         else:
             print("Emergency Alarm is triggered")
+            self.logger.info("standard_alarm - FAILURE")
             self.logger.info("emergency_alarm - SUCCESS")
         return True
 
@@ -43,6 +42,7 @@ class Tas:
             self.logger.info("vital_params_full - SUCCESS")
         else:
             print("Received partial params")
+            self.logger.info("vital_params_full - FAILURE")
             self.logger.info("vital_params_partial - SUCCESS")
         return True
 

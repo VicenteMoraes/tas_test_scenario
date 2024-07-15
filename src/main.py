@@ -6,4 +6,5 @@ if __name__ == '__main__':
     tas.provide_health_support()
     logger = RuntimeLogger.tas_logger()
     logger.read_logs()
-    print('hi')
+    logger.edit_prism_model('edge.mp')
+    pass

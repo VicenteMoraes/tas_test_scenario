@@ -13,15 +13,15 @@ class RuntimeLogger:
         goals = ["G4a", "G4b", "G5", "G9a", "G9b", "G10a", "G10b", "G12a", "G12b", "G8a", "G8b"]
         goal_tags = {"vital_params_full": "G4a", "vital_params_partial": "G4b", "analyse_data": "G5",
                      "drug_service_change_drug": "G9a", "drug_service_change_dose": "G9b",
-                     "monitor_service": "G10a", "monitor_service_retry": "10b", "standard_alarm": ["G12a", "G8a"],
+                     "monitor_service": "G10a", "monitor_service_retry": "G10b", "standard_alarm": ["G12a", "G8a"],
                      "emergency_alarm": ["G12b", "G8b"]}
         adaptability = {goal: initial_adaptability for goal in goals}
         return RuntimeLogger(adaptability, h, goals, goal_tags)
 
-    def clip_adaptability(self, goal):
+    def limit_adaptability(self, goal):
         if self.adaptability[goal] > 1:
             self.adaptability[goal] = 1
-        if self.adaptability[goal] < 0:
+        elif self.adaptability[goal] < 0:
             self.adaptability[goal] = 0
 
     def read_logs(self):
@@ -43,14 +43,34 @@ class RuntimeLogger:
                     goal = self.goal_tags[tag]
                     try:
                         self.adaptability[goal] += self.h*result
-                        self.clip_adaptability(goal)
+                        self.limit_adaptability(goal)
                     except TypeError:
                         for g in goal:
                             self.adaptability[g] += self.h*result
-                            self.clip_adaptability(g)
+                            self.limit_adaptability(g)
                 except KeyError:
                     pass
 
-    def write_prism_model(self):
+    def edit_prism_model(self, prism_model_path: str):
         # TODO
-        pass
+        with open(prism_model_path, "r") as rf:
+            pm_file = rf.readlines()
+
+        probabilities_list = []
+        for goal in self.goals:
+            code = ''.join([s for s in goal if s.isdigit()])
+            try:
+                variation = ord(goal[goal.rindex(code[-1])+1:]) - ord('a') + 1
+                p = f"p{code}_{variation}"
+            except TypeError:
+                p = f"p{code}"
+
+            probabilities_list.append(p)
+
+            for index, line in enumerate(pm_file[1:20]):
+                for p in probabilities_list:
+                    if p in line:
+                        pm_file[index+1] = f"const double {p} = {self.adaptability[goal]:.3f};\n"
+
+        with open(prism_model_path, "w") as wf:
+            wf.writelines(pm_file)
